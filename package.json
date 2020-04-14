@@ -10,6 +10,7 @@
   "author": "Hanna Söderström <hanna.soderstrom84@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-async-await": "^1.1.0",
     "memory-cache": "^0.2.0",
