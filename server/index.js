@@ -2,8 +2,10 @@ const express = require("express");
 const async = require("express-async-await");
 const fetch = require("node-fetch");
 const mcache = require("memory-cache");
-
+const cors = require("cors");
 const app = express();
+
+app.use(cors());
 
 const DOMAIN = "https://app.tibber.com/v4/";
 const SECONDS_CACHE_DURATION = 60;
@@ -61,15 +63,25 @@ const fetchData = async (body) => {
   }
 };
 
-app.get("/data", cache(SECONDS_CACHE_DURATION), async (req, res, next) => {
-  const response = await fetchData({
-    query:
-      '{me{home(id:"a8c210fc-2988-4f06-9fe9-ab1bad9529d5"){weather{minTemperature,maxTemperature,entries{time,temperature,type}}}}}',
-  });
+const corsOptions = {
+  origin: "http://localhost:3001",
+  optionSuccessStatus: 200,
+};
 
-  const body = await response.json();
-  res.send(body);
-});
+app.get(
+  "/data",
+  cors(corsOptions),
+  cache(SECONDS_CACHE_DURATION),
+  async (req, res, next) => {
+    const response = await fetchData({
+      query:
+        '{me{home(id:"a8c210fc-2988-4f06-9fe9-ab1bad9529d5"){weather{minTemperature,maxTemperature,entries{time,temperature,type}}}}}',
+    });
+
+    const body = await response.json();
+    res.send(body.data.me.home.weather);
+  }
+);
 
 app.listen(3000, () => {
   console.log("Server running on port 3000");
